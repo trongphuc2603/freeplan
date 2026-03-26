@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch tập miễn phí | Coach Phúc</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg: #ffffff; --text: #1a1a1a; --secondary: #666; --input: #f3f3f1;
+            --accent: #000; --border: #ddd; --success: #27ae60;
+        }
+
+        body { 
+            font-family: 'Be Vietnam Pro', sans-serif; 
+            background: var(--bg); color: var(--text); 
+            display: flex; justify-content: center; 
+            padding: 40px 20px; margin: 0; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { width: 100%; max-width: 500px; }
+        .header-flex { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+        .coach-badge { background: var(--accent); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        
+        h2 { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 10px; line-height: 1.2; text-align: center; }
+        p.subtitle { text-align: center; color: var(--secondary); margin-bottom: 30px; font-size: 15px; }
+
+        .card { background: var(--bg); border: 1px solid var(--border); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        input[type="text"], input[type="tel"] { 
+            font-family: 'Be Vietnam Pro', sans-serif;
+            width: 100%; padding: 14px; border: 2px solid transparent; border-radius: 10px; 
+            background: var(--input); color: var(--text); font-size: 16px; box-sizing: border-box; margin-bottom: 20px; 
+        }
+        input:focus { border-color: var(--accent); outline: none; background: #fff; }
+
+        .freq-group { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 25px; }
+        .freq-item { 
+            display: flex; align-items: center; gap: 12px; font-size: 15px; 
+            cursor: pointer; background: var(--input); padding: 16px; 
+            border-radius: 12px; border: 2px solid transparent; transition: 0.2s;
+            font-weight: 500;
+        }
+        .freq-item input[type="radio"] { width: 18px; height: 18px; accent-color: var(--accent); }
+        .freq-item:has(input:checked) { border-color: var(--accent); background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-weight: 700; }
+
+        #custom-freq-box { display: none; margin-top: 10px; }
+
+        .cta-btn { 
+            font-family: 'Be Vietnam Pro', sans-serif;
+            width: 100%; padding: 20px; background: var(--accent); color: white; border: none; 
+            border-radius: 12px; font-size: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; 
+        }
+        .cta-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .cta-btn:active { transform: scale(0.98); }
+        
+        .success-msg { display: none; text-align: center; padding: 20px; color: var(--success); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-flex">
+        <span class="coach-badge">Gift for you</span>
+    </div>
+
+    <h2>Lịch tập miễn phí<br>cho bạn</h2>
+    <p class="subtitle">Điền thông tin bên dưới để Phúc gửi lịch tập phù hợp với bạn nhé!</p>
+    
+    <div class="card" id="form-card">
+        <label>Họ và Tên</label>
+        <input type="text" id="fullname" placeholder="Nhập tên của bạn">
+
+        <label>Số điện thoại (Zalo)</label>
+        <input type="tel" id="phone" placeholder="Để Phúc gửi lịch qua Zalo">
+
+        <label>Tần suất tập luyện hiện tại</label>
+        <div class="freq-group">
+            <label class="freq-item">
+                <input type="radio" name="freq" value="2 buổi/ tuần" onclick="toggleCustom(false)"> 2 buổi/ tuần
+            </label>
+            <label class="freq-item">
+                <input type="radio" name="freq" value="3 buổi/ tuần" onclick="toggleCustom(false)"> 3 buổi/ tuần
+            </label>
+            <label class="freq-item">
+                <input type="radio" name="freq" value="4 buổi/ tuần" onclick="toggleCustom(false)"> 4 buổi/ tuần
+            </label>
+            <label class="freq-item">
+                <input type="radio" name="freq" value="Other" id="radio-other" onclick="toggleCustom(true)"> Khác
+            </label>
+            <div id="custom-freq-box">
+                <input type="text" id="custom-freq" placeholder="VD: 5 buổi hoặc chưa tập bao giờ...">
+            </div>
+        </div>
+
+        <button class="cta-btn" id="submit-btn" onclick="sendData()">NHẬN LỊCH TẬP NGAY →</button>
+        <div id="msg" class="success-msg">Đã gửi thành công! Phúc sẽ liên hệ sớm nhé.</div>
+    </div>
+</div>
+
+<script>
+    // GIỮ NGUYÊN LINK GOOGLE SCRIPT CŨ CỦA BẠN
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGXl07I3FGzX3K1E3lxZxoLYkdcL9d61njAgbigeXQM5qC_gvSihI9C69UFgXLOtc/exec";
+
+    function toggleCustom(show) {
+        document.getElementById('custom-freq-box').style.display = show ? 'block' : 'none';
+        if(show) document.getElementById('custom-freq').focus();
+    }
+
+    async function sendData() {
+        const name = document.getElementById('fullname').value;
+        const phone = document.getElementById('phone').value;
+        const btn = document.getElementById('submit-btn');
+        
+        // Lấy giá trị tần suất
+        let freq = "";
+        const selectedRadio = document.querySelector('input[name="freq"]:checked');
+        
+        if (!selectedRadio) { alert("Vui lòng chọn tần suất tập!"); return; }
+        
+        if (selectedRadio.value === "Other") {
+            freq = document.getElementById('custom-freq').value;
+        } else {
+            freq = selectedRadio.value;
+        }
+
+        if (!name || !phone || !freq) { 
+            alert("Vui lòng nhập đầy đủ thông tin để Phúc gửi lịch nhé!"); 
+            return; 
+        }
+
+        // Đổi trạng thái nút
+        btn.innerText = "ĐANG GỬI...";
+        btn.disabled = true;
+
+        // Chuẩn bị data (Dùng các field cũ để Sheets vẫn nhận được)
+        const data = {
+            name: name,
+            phone: phone,
+            pains: "Yêu cầu Lịch tập: " + freq, // Ghi vào cột Pains cho tiện theo dõi
+            goal: "Nhận lịch tập miễn phí",
+            weight: "-", height: "-", age: "-", gender: "-", tdee: "-", macro: "-"
+        };
+
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            // Thành công
+            document.getElementById('submit-btn').style.display = 'none';
+            document.getElementById('msg').style.display = 'block';
+            alert("Cảm ơn " + name + "! Phúc đã nhận được thông tin.");
+            
+        } catch (error) {
+            console.error("Lỗi:", error);
+            btn.innerText = "GỬI LẠI";
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>
